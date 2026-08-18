@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "dki.quran-verse-of-the-day",
+  "name": "Quran Verse of the Day",
+  "version": "1.0.0",
+  "author": "Idris Akorede Ibrahim",
+  "description": "Shows a daily Quran ayah in the bar, fetched from alquran.cloud, with a popup for the full text.",
+  "license": "MIT",
+  "kinds": ["bar-widget"],
+  "entryPoints": { "barWidget": "BarWidget.qml" },
+  "barWidget": {
+    "displayName": "Quran Verse",
+    "description": "Daily Quran ayah fetched from alquran.cloud",
+    "category": "Info",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": { "translation": "en.sahih", "showArabic": true },
+    "schema": [
+      {
+        "key": "translation",
+        "type": "string",
+        "label": "Translation (alquran.cloud edition code, e.g. en.sahih, en.pickthall, en.yusufali, en.asad)",
+        "defaultValue": "en.sahih"
+      },
+      {
+        "key": "showArabic",
+        "type": "boolean",
+        "label": "Show the Arabic text alongside the translation",
+        "defaultValue": true
+      }
+    ]
+  }
+}
