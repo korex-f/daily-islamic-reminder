@@ -2,6 +2,8 @@
 
 An Omarchy Quattro bar widget and panel that presents a daily Quran ayah, a graded Hadith, or both. The bar stays compact; click **Today’s Reminder** to read Arabic and English text, provenance, and the visible Hadith grade.
 
+![Plugin preview](preview.png)
+
 ## What it does
 
 - Rotates Quran and Hadith independently once per local calendar day.
