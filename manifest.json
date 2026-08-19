@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "io.github.korex-f.daily-islamic-reminder",
+  "id": "dki.quran-verse-of-the-day",
   "name": "Daily Islamic Reminder",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "author": "Idris Akorede Ibrahim",
   "description": "A daily Quran ayah and/or graded Hadith with a full-detail panel.",
   "license": "MIT",
