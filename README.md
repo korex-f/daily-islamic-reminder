@@ -1,84 +1,69 @@
-# Quran Verse of the Day for Omarchy
+# Daily Islamic Reminder for Omarchy
 
-An Omarchy bar widget that shows a daily Qur'anic ayah. A book icon sits in the
-bar; clicking it opens a popup with the day's reference, the Arabic text, and a
-translation.
-
-The ayah rotates once per day (day-of-year indexed into a curated list of ~240
-references bundled with the plugin) and its text is fetched from the free,
-keyless [alquran.cloud](https://alquran.cloud) API — the Uthmani Arabic edition
-and the configured translation in a single request. The result is cached
-locally so the widget only hits the network once per day, not on every shell
-restart.
+An Omarchy Quattro bar widget and panel that presents a daily Quran ayah, a graded Hadith, or both. The bar stays compact; click **Today’s Reminder** to read Arabic and English text, provenance, and the visible Hadith grade.
 
 ## What it does
 
-- Shows a book icon in the bar; hover reveals the day's reference.
-- Opens a popup with the reference, Arabic text, and translation on left click.
-- Middle click force-refreshes (ignores the daily cache).
-- Right click sends today's ayah as a desktop notification.
+- Rotates Quran and Hadith independently once per local calendar day.
+- Supports sequential (resumable) or deterministic random rotation per source.
+- Defaults to both sources, Saheeh International (`en.sahih`), and records graded sahih or hasan. The default `any` collection pool uses Sahih al-Bukhari and Sahih Muslim; other collection records are considered only when their source-supplied grade passes the active filter.
+- Keeps Quran Arabic separate from translation, and presents Hadith metadata separately so no commentary can be mistaken for Quran text.
+- Caches immutable text per reference and edition under `~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache/`; the same cached ayah or Hadith is not fetched again. Quran and Hadith edition metadata refresh at most weekly.
+
+## Sources and attribution
+
+- Quran Arabic, translations, and optional recitation links come from [Al Quran Cloud](https://alquran.cloud/) / [api.alquran.cloud](https://api.alquran.cloud/). The selected edition is named beneath each translation.
+- Hadith Arabic, English, collection/book references, and grade metadata come from [fawazahmed0/hadith-api](https://github.com/fawazahmed0/hadith-api), served through [jsDelivr](https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions.min.json). A Hadith is never rendered without a visible grade.
+
+Neither source needs an API key; this repository contains none.
 
 ## Install
-
-Install from git and enable it:
 
 ```bash
 omarchy plugin add https://github.com/korex-f/omarchy-quran-verse-of-the-day.git --enable
 ```
 
-After enabling, Omarchy adds the widget to the right bar section. Move it if
-desired:
+The widget is added to the right bar section. To move it:
 
 ```bash
 omarchy bar plugin move dki.quran-verse-of-the-day --section center
 ```
 
-## Configuration
+## Settings
 
-The plugin has two settings, editable from Omarchy's settings panel or directly
-in `~/.config/omarchy/shell.json` next to the widget's bar entry:
+Click the widget, then use the persistent gear icon in its panel. Settings are saved to the Omarchy bar entry and include:
 
-```json
-{
-  "id": "dki.quran-verse-of-the-day",
-  "translation": "en.sahih",
-  "showArabic": true
-}
-```
+- Quran translation edition, with a searchable sensible-English list or a directly entered Al Quran Cloud edition code;
+- preferred Hadith collection (`any`, Bukhari, Muslim, Abu Dawud, or Tirmidhi);
+- rotation mode (`both`, `quran-only`, or `hadith-only`);
+- sequential/random order independently for Quran and Hadith;
+- the opt-in filter to include grades beyond sahih/hasan; and
+- optional Quran recitation link.
 
-- `translation` — any [alquran.cloud translation edition code](https://alquran.cloud/editions)
-  (`en.sahih`, `en.pickthall`, `en.yusufali`, `en.asad`, ...). Defaults to
-  `en.sahih` (Saheeh International).
-- `showArabic` — whether the popup shows the Arabic text above the
-  translation. Defaults to `true`.
+On first open the panel opens its settings surface with suggested defaults; there is no install-time wizard or background service.
 
-Changing either setting triggers an immediate refetch.
+## Network, cache, and privacy
 
-## Remove
+The plugin runs commands through Omarchy’s unsandboxed shell integration to make HTTPS `curl` requests to the two sources above. It requests only selected, uncached immutable records on panel open, plus Quran edition metadata at most weekly. No account, API key, telemetry, or personal content is sent.
+
+There is no offline catalogue bundled with the plugin. Previously viewed items remain readable from the local cache; a new uncached item needs network access. Al Quran Cloud has a soft per-second rate limit, so the plugin deliberately does not poll in the background.
+
+## Remove cleanly
 
 ```bash
 omarchy plugin remove dki.quran-verse-of-the-day
+rm -rf ~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache
 ```
 
-## Update
+The second command is optional and removes only this plugin’s cached texts and rotation state.
 
-```bash
-omarchy plugin update dki.quran-verse-of-the-day
-```
-
-## Validate from source
+## Development checks
 
 ```bash
 omarchy plugin validate .
+qmllint BarWidget.qml Panel.qml Service.qml
 node tests/model.test.js
 ```
-
-## Security and privacy
-
-The plugin runs inside `omarchy-shell` when enabled. It calls `curl` once per
-day to fetch the selected ayah from `api.alquran.cloud` and caches the result
-in `~/.local/state/omarchy/quran-verse-of-the-day.json`. No other data leaves
-the machine, and no API key is required.
 
 ## License
 

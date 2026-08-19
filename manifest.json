@@ -1,32 +1,71 @@
 {
   "schemaVersion": 1,
   "id": "dki.quran-verse-of-the-day",
-  "name": "Quran Verse of the Day",
-  "version": "1.0.0",
+  "name": "Daily Islamic Reminder",
+  "version": "2.0.0",
   "author": "Idris Akorede Ibrahim",
-  "description": "Shows a daily Quran ayah in the bar, fetched from alquran.cloud, with a popup for the full text.",
+  "description": "A daily Quran ayah and/or graded Hadith with a full-detail panel.",
   "license": "MIT",
+  "tags": ["quran", "hadith", "reminder"],
   "kinds": ["bar-widget"],
   "entryPoints": { "barWidget": "BarWidget.qml" },
   "barWidget": {
-    "displayName": "Quran Verse",
-    "description": "Daily Quran ayah fetched from alquran.cloud",
-    "category": "Info",
+    "displayName": "Daily Islamic Reminder",
+    "description": "Daily Quran and graded Hadith reminder",
+    "category": "Productivity",
     "allowMultiple": false,
     "defaultSection": "right",
-    "defaults": { "translation": "en.sahih", "showArabic": true },
+    "defaults": {
+      "translation": "en.sahih",
+      "hadithCollection": "any",
+      "rotationMode": "both",
+      "quranSequence": "sequential",
+      "hadithSequence": "sequential",
+      "includeWeakGrades": false,
+      "audioEnabled": false
+    },
     "schema": [
       {
         "key": "translation",
         "type": "string",
-        "label": "Translation (alquran.cloud edition code, e.g. en.sahih, en.pickthall, en.yusufali, en.asad)",
+        "label": "Quran translation edition",
         "defaultValue": "en.sahih"
       },
       {
-        "key": "showArabic",
+        "key": "hadithCollection",
+        "type": "string",
+        "label": "Hadith collection: any, Bukhari, Muslim, Abu Dawud, or Tirmidhi",
+        "defaultValue": "any"
+      },
+      {
+        "key": "rotationMode",
+        "type": "string",
+        "label": "Rotation mode: both, quran-only, or hadith-only",
+        "defaultValue": "both"
+      },
+      {
+        "key": "quranSequence",
+        "type": "string",
+        "label": "Quran order: sequential or random",
+        "defaultValue": "sequential"
+      },
+      {
+        "key": "hadithSequence",
+        "type": "string",
+        "label": "Hadith order: sequential or random",
+        "defaultValue": "sequential"
+      },
+      {
+        "key": "includeWeakGrades",
         "type": "boolean",
-        "label": "Show the Arabic text alongside the translation",
-        "defaultValue": true
+        "label": "Include Hadith grades other than sahih and hasan",
+        "defaultValue": false
+      },
+      {
+        "key": "audioEnabled",
+        "type": "boolean",
+        "label": "Show Quran audio link",
+        "defaultValue": false
       }
     ]
   }

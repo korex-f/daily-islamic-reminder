@@ -38,4 +38,28 @@ assert.equal(model.apiUrl("1:1-7", "EN.Pickthall"), "https://api.alquran.cloud/v
 assert.equal(model.isoDate(new Date(2026, 0, 5)), "2026-01-05")
 assert.equal(model.cleanVerseText("  a\n\nb \n c  "), "a b c")
 
-console.log("Quran reference tests passed")
+assert.equal(model.nextPosition(-1, 3, "sequential", "x"), 0)
+assert.equal(model.nextPosition(2, 3, "sequential", "x"), 0)
+assert.equal(model.nextPosition(-1, 9, "random", "2026-01-01q"), model.nextPosition(4, 9, "random", "2026-01-01q"))
+assert.ok(model.hadithPool("any", false).every((item) => item.collection === "bukhari" || item.collection === "muslim"))
+assert.ok(model.hadithPool("any", true).some((item) => item.collection === "abudawud"))
+assert.equal(model.hadithPool("abudawud", false).length, 1)
+assert.ok(model.isAllowedGrade("Sahih", false))
+assert.ok(model.isAllowedGrade("Hasan Sahih", false))
+assert.equal(model.isAllowedGrade("Da'if", false), false)
+assert.ok(model.isAllowedGrade("Da'if", true))
+assert.equal(model.collectionName("abudawud"), "Sunan Abi Dawud")
+assert.equal(model.hadithUrl("eng-bukhari", 1), "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-bukhari/1.min.json")
+
+const parsedQuran = model.parseQuran(JSON.stringify({ data: [
+  { text: "عَرَبِي", audio: "https://audio.example/1.mp3" },
+  { text: " A translation ", edition: { englishName: "Saheeh International" } }
+] }), "2:255", "en.sahih")
+assert.equal(parsedQuran.reference, "Al-Baqara 2:255")
+assert.equal(parsedQuran.edition, "Saheeh International")
+
+const parsedHadith = model.parseHadith(JSON.stringify({ hadiths: [{ hadithnumber: 1, text: " English text ", grades: [], reference: { book: 1 } }] }), JSON.stringify({ hadiths: [{ text: "نص عربي" }] }), { collection: "bukhari", number: 1 })
+assert.equal(parsedHadith.grade, "Sahih")
+assert.equal(parsedHadith.book, "Book 1")
+
+console.log("Quran and Hadith model tests passed")

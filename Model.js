@@ -423,6 +423,118 @@ function cleanVerseText(raw) {
   return String(raw || "").replace(/\s+/g, " ").trim()
 }
 
+function choice(value, allowed, fallback) {
+  var v = String(value || "").toLowerCase()
+  return allowed.indexOf(v) >= 0 ? v : fallback
+}
+
+function nextPosition(position, length, style, salt) {
+  if (length <= 0) return -1
+  if (String(style) !== "random") return (Number(position) + 1 + length) % length
+  // A deterministic daily pick avoids changing an item during the same day,
+  // while storing the result still makes changing modes resumable.
+  var hash = 0
+  var text = String(salt || "")
+  for (var i = 0; i < text.length; i++) hash = ((hash * 31) + text.charCodeAt(i)) >>> 0
+  return hash % length
+}
+
+function isOlderThanDays(date, days) {
+  var then = Date.parse(String(date || ""))
+  return !isFinite(then) || Date.now() - then > days * 86400000
+}
+
+function quranUrl(reference, translation) { return apiUrl(reference, translation) }
+function hadithUrl(edition, number) {
+  return "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/" + encodeURIComponent(edition) + "/" + encodeURIComponent(number) + ".min.json"
+}
+
+// Small, deliberately reviewed rotation seed. The remote API supplies text,
+// book reference and grades; Bukhari/Muslim records are in the default pool.
+var HADITHS = [
+  { collection: "bukhari", number: 1 }, { collection: "bukhari", number: 8 },
+  { collection: "bukhari", number: 13 }, { collection: "bukhari", number: 20 },
+  { collection: "bukhari", number: 52 }, { collection: "bukhari", number: 56 },
+  { collection: "muslim", number: 1 }, { collection: "muslim", number: 8 },
+  { collection: "muslim", number: 16 }, { collection: "muslim", number: 38 },
+  { collection: "muslim", number: 47 }, { collection: "muslim", number: 55 },
+  { collection: "abudawud", number: 1 }, { collection: "tirmidhi", number: 1 }
+]
+
+function hadithPool(collection, includeWeak) {
+  var wanted = choice(collection, ["any", "bukhari", "muslim", "abudawud", "tirmidhi"], "any")
+  return HADITHS.filter(function(item) {
+    if (wanted !== "any" && item.collection !== wanted) return false
+    // The default "any" pool is deliberately the two Sahih collections.
+    // For an explicitly selected collection, final eligibility comes from
+    // the record's source-supplied grade in isAllowedGrade().
+    return wanted !== "any" || includeWeak || item.collection === "bukhari" || item.collection === "muslim"
+  })
+}
+
+function firstRecord(value) {
+  if (Array.isArray(value)) return value[0] || null
+  if (value && Array.isArray(value.hadiths)) return value.hadiths[0] || null
+  if (value && value.data) return firstRecord(value.data)
+  return value && typeof value === "object" ? value : null
+}
+
+function gradeFrom(record, collection) {
+  var grades = record && Array.isArray(record.grades) ? record.grades : []
+  var labels = grades.map(function(g) { return String((g && (g.grade || g.name)) || "").trim() }).filter(Boolean)
+  // The two canonical Sahih collections are inherently graded; retain that
+  // provenance if an individual API record has no duplicated grade field.
+  if (labels.length === 0 && (collection === "bukhari" || collection === "muslim")) return "Sahih"
+  return labels.join("; ")
+}
+
+function isAllowedGrade(grade, includeWeak) {
+  var text = String(grade || "").toLowerCase()
+  if (text === "") return false
+  if (includeWeak) return true
+  return text.indexOf("sahih") !== -1 || text.indexOf("hasan") !== -1
+}
+
+function collectionName(collection) {
+  var names = {
+    bukhari: "Sahih al-Bukhari",
+    muslim: "Sahih Muslim",
+    abudawud: "Sunan Abi Dawud",
+    tirmidhi: "Jami` at-Tirmidhi"
+  }
+  return names[collection] || String(collection || "")
+}
+
+function parseQuran(raw, reference, translation) {
+  try {
+    var value = JSON.parse(String(raw || ""))
+    var rows = value && value.data
+    if (!Array.isArray(rows) || rows.length < 2) return null
+    return {
+      reference: referenceLabel(reference), arabic: cleanVerseText(rows[0].text),
+      text: cleanVerseText(rows[1].text),
+      edition: String((rows[1].edition && rows[1].edition.englishName) || translation),
+      audio: String(rows[0].audio || "")
+    }
+  } catch (e) { return null }
+}
+
+function parseHadith(englishRaw, arabicRaw, candidate) {
+  try {
+    var english = firstRecord(JSON.parse(String(englishRaw || "")))
+    var arabic = firstRecord(JSON.parse(String(arabicRaw || "")))
+    if (!english || !arabic) return null
+    var ref = english.reference || arabic.reference || {}
+    var grade = gradeFrom(english, candidate.collection)
+    return {
+      text: cleanVerseText(english.text), arabic: cleanVerseText(arabic.text),
+      collection: collectionName(candidate.collection),
+      book: "Book " + String(ref.book === undefined ? "—" : ref.book),
+      number: String(english.hadithnumber || candidate.number), grade: grade
+    }
+  } catch (e) { return null }
+}
+
 if (typeof module !== "undefined") {
   module.exports = {
     referenceForDate: referenceForDate,
@@ -431,7 +543,18 @@ if (typeof module !== "undefined") {
     isoDate: isoDate,
     apiUrl: apiUrl,
     cleanVerseText: cleanVerseText,
+    choice: choice,
+    nextPosition: nextPosition,
+    isOlderThanDays: isOlderThanDays,
+    quranUrl: quranUrl,
+    hadithUrl: hadithUrl,
+    hadithPool: hadithPool,
+    isAllowedGrade: isAllowedGrade,
+    collectionName: collectionName,
+    parseQuran: parseQuran,
+    parseHadith: parseHadith,
     SURAH_NAMES: SURAH_NAMES,
-    AYAHS: AYAHS
+    AYAHS: AYAHS,
+    HADITHS: HADITHS
   }
 }

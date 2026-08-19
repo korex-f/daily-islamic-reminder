@@ -4,13 +4,8 @@ import Quickshell.Io
 import qs.Commons
 import qs.Ui
 
-// Bar entry for the daily-ayah widget: a book icon in the bar with today's
-// ayah behind it. Left-click opens the popup, middle-click forces a refresh
-// past the daily cache, right-click sends today's ayah as a notification.
-//
-// The Service lives here (not in the panel) so the bar icon can react to the
-// same fetch state the panel shows, and so one fetch is shared across the
-// whole widget.
+// Compact entry point. Service.qml is deliberately lazy: opening this widget
+// checks persisted daily state and only fetches an uncached selected item.
 BarWidget {
   id: root
   moduleName: "dki.quran-verse-of-the-day"
@@ -28,6 +23,7 @@ BarWidget {
   readonly property bool opened: panelLoader.item ? panelLoader.item.opened === true : false
 
   function open() {
+    verse.load()
     if (panelLoader.item) panelLoader.item.open()
   }
 
@@ -39,21 +35,7 @@ BarWidget {
     if (panelLoader.item) panelLoader.item.toggle()
   }
 
-  function refresh() {
-    verse.refresh()
-  }
-
-  function notifyToday() {
-    notifyProc.command = ["omarchy-notification-send",
-      verse.verseReference !== "" ? verse.verseReference : "Quran Verse of the Day",
-      verse.verseText !== "" ? verse.verseText : "Still loading today's ayah…"]
-    notifyProc.running = true
-  }
-
-  Process {
-    id: notifyProc
-    running: false
-  }
+  function refresh() { verse.load(true) }
 
   // Forwarded so this widget can stand in for the panel as the bar's popout
   // identity: Bar.requestPopout prefers closeForPopoutSwitch over close, and
@@ -99,7 +81,7 @@ BarWidget {
     function show(): void { root.open() }
     function hide(): void { root.close() }
     function toggle(): void { root.togglePanel() }
-    function refresh(): string { verse.refresh(); return "ok" }
+    function refresh(): string { verse.load(true); return "ok" }
     function status(): string { return verse.statusText }
   }
 
@@ -107,15 +89,15 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    text: ""
-    foreground: verse.lastError !== "" && verse.verseText === ""
+    text: "🕌"
+    fontFamily: "Noto Color Emoji"
+    foreground: verse.lastError !== "" && verse.quranText === "" && verse.hadithText === ""
       ? Qt.darker(root.barForeground, 1.2)
       : root.barForeground
-    tooltipText: verse.verseReference !== "" ? verse.verseReference : "Quran Verse of the Day"
+    tooltipText: "Today’s Islamic reminder"
 
     onPressed: function(b) {
-      if (b === Qt.RightButton) root.notifyToday()
-      else if (b === Qt.MiddleButton) root.refresh()
+      if (b === Qt.MiddleButton) root.refresh()
       else root.togglePanel()
     }
   }
