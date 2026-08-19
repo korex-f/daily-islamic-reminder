@@ -54,6 +54,10 @@ Panel {
     return false
   }
   function refresh() { if (service) service.load(true) }
+  function openQuranAudio() {
+    var target = String(service ? service.quranAudio : "").trim()
+    if (target.indexOf("https://") === 0 && target.indexOf(" ") === -1) Qt.openUrlExternally(target)
+  }
   function setting(name, fallback) {
     var value = settings ? settings[name] : undefined
     return value === undefined || value === null ? fallback : value
@@ -113,7 +117,7 @@ Panel {
               foreground: root.foreground
               fontFamily: root.fontFamily
               iconComponent: Component {
-                Text {
+                Text { textFormat: Text.PlainText;
                   text: "🕌"
                   font.family: "Noto Color Emoji"
                   font.pixelSize: Style.font.display
@@ -124,7 +128,7 @@ Panel {
               id: gear
               width: Style.space(32); height: width; radius: height / 2
               color: "transparent"; border.color: root.dim
-              Text { anchors.centerIn: parent; text: ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              Text { textFormat: Text.PlainText;  anchors.centerIn: parent; text: ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               MouseArea { anchors.fill: parent; onClicked: root.showingSettings = !root.showingSettings }
             }
           }
@@ -137,11 +141,11 @@ Panel {
               id: reminderColumn
               width: parent.width
               spacing: Style.space(10)
-              Text { visible: root.service && root.service.showQuran; text: "QURAN"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true }
-              Text { visible: root.service && root.service.showQuran; width: parent.width; text: root.service ? root.service.quranReference : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showQuran; text: "QURAN"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showQuran; width: parent.width; text: root.service ? root.service.quranReference : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; font.bold: true }
               Text { visible: root.service && root.service.showQuran && root.service.quranArabic !== ""; width: parent.width; text: root.service ? root.service.quranArabic : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.subtitle; font.bold: true; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignRight; textFormat: Text.PlainText }
-              Text { visible: root.service && root.service.showQuran; width: parent.width; text: root.service && root.service.quranText !== "" ? root.service.quranText : "Loading Quran ayah…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
-              Text { visible: root.service && root.service.showQuran && root.service.quranEditionName !== ""; text: "Translation: " + root.service.quranEditionName + " · Al Quran Cloud"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showQuran; width: parent.width; text: root.service && root.service.quranText !== "" ? root.service.quranText : "Loading Quran ayah…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showQuran && root.service.quranEditionName !== ""; text: "Translation: " + root.service.quranEditionName + " · Al Quran Cloud"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
               Rectangle {
                 visible: root.service && root.service.showQuran && root.setting("audioEnabled", false) && root.service.quranAudio !== ""
                 width: parent.width
@@ -149,22 +153,22 @@ Panel {
                 radius: 4
                 color: "transparent"
                 border.color: root.dim
-                Text { anchors.centerIn: parent; text: "Open Quran audio"; color: root.dim; font.pixelSize: Style.font.bodySmall }
-                MouseArea { anchors.fill: parent; onClicked: Qt.openUrlExternally(root.service.quranAudio) }
+                Text { textFormat: Text.PlainText;  anchors.centerIn: parent; text: "Open Quran audio"; color: root.dim; font.pixelSize: Style.font.bodySmall }
+                MouseArea { anchors.fill: parent; onClicked: root.openQuranAudio() }
               }
               PanelSeparator { visible: root.service && root.service.showQuran && root.service.showHadith; foreground: root.foreground }
-              Text { visible: root.service && root.service.showHadith; text: "HADITH"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true }
-              Text { visible: root.service && root.service.showHadith; width: parent.width; text: root.service ? root.service.hadithCollectionName + " · " + root.service.hadithBook + " · Hadith " + root.service.hadithNumber + "\nGrade: " + root.service.hadithGrade + " · Hadith API" : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; text: "HADITH"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service ? root.service.hadithCollectionName + " · " + root.service.hadithBook + " · Hadith " + root.service.hadithNumber + "\nGrade: " + root.service.hadithGrade + " · Hadith API" : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
               Text { visible: root.service && root.service.showHadith && root.service.hadithArabic !== ""; width: parent.width; text: root.service ? root.service.hadithArabic : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.subtitle; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignRight; textFormat: Text.PlainText }
-              Text { visible: root.service && root.service.showHadith; width: parent.width; text: root.service && root.service.hadithText !== "" ? root.service.hadithText : "Loading graded Hadith…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
-              Text { visible: root.service && root.service.lastError !== ""; width: parent.width; text: root.service ? root.service.lastError : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service && root.service.hadithText !== "" ? root.service.hadithText : "Loading graded Hadith…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.lastError !== ""; width: parent.width; text: root.service ? root.service.lastError : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
               Rectangle {
                 width: parent.width
                 height: Style.space(30)
                 radius: 4
                 color: "transparent"
                 border.color: root.dim
-                Text { anchors.centerIn: parent; text: "Refresh metadata"; color: root.foreground; font.pixelSize: Style.font.bodySmall }
+                Text { textFormat: Text.PlainText;  anchors.centerIn: parent; text: "Refresh metadata"; color: root.foreground; font.pixelSize: Style.font.bodySmall }
                 MouseArea { anchors.fill: parent; onClicked: root.refresh() }
               }
             }
@@ -178,21 +182,21 @@ Panel {
               id: settingsColumn
               width: parent.width
               spacing: Style.space(8)
-              Text { visible: !root.hasSavedSettings(); text: "Welcome — choose your preferred translation, Hadith collection, and rotation mode. Suggested settings are ready to use."; width: parent.width; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: !root.hasSavedSettings(); text: "Welcome — choose your preferred translation, Hadith collection, and rotation mode. Suggested settings are ready to use."; width: parent.width; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
               SettingButton { visible: !root.hasSavedSettings(); label: "Use suggested settings"; onClicked: root.persist({ translation: "en.sahih", hadithCollection: "any", rotationMode: "both", quranSequence: "sequential", hadithSequence: "sequential", includeWeakGrades: false }) }
-              Text { text: "Rotation mode: " + root.setting("rotationMode", "both"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              Text { textFormat: Text.PlainText;  text: "Rotation mode: " + root.setting("rotationMode", "both"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               SettingButton { label: "Cycle rotation mode"; onClicked: root.cycle("rotationMode", ["both", "quran-only", "hadith-only"]) }
-              Text { text: "Quran order: " + root.setting("quranSequence", "sequential") + " · Hadith order: " + root.setting("hadithSequence", "sequential"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              Text { textFormat: Text.PlainText;  text: "Quran order: " + root.setting("quranSequence", "sequential") + " · Hadith order: " + root.setting("hadithSequence", "sequential"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               Row {
                 spacing: Style.space(8)
                 SettingButton { label: "Cycle Quran order"; onClicked: root.cycle("quranSequence", ["sequential", "random"]) }
                 SettingButton { label: "Cycle Hadith order"; onClicked: root.cycle("hadithSequence", ["sequential", "random"]) }
               }
-              Text { text: "Hadith collection: " + root.setting("hadithCollection", "any"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              Text { textFormat: Text.PlainText;  text: "Hadith collection: " + root.setting("hadithCollection", "any"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               SettingButton { label: "Cycle collection"; onClicked: root.cycle("hadithCollection", ["any", "bukhari", "muslim", "abudawud", "tirmidhi"]) }
               SettingButton { label: root.setting("includeWeakGrades", false) ? "Exclude weaker grades" : "Include grades beyond sahih/hasan"; onClicked: root.persist({ includeWeakGrades: !root.setting("includeWeakGrades", false) }) }
               SettingButton { label: root.setting("audioEnabled", false) ? "Hide Quran audio link" : "Show Quran audio link"; onClicked: root.persist({ audioEnabled: !root.setting("audioEnabled", false) }) }
-              Text { text: "Quran translation edition"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              Text { textFormat: Text.PlainText;  text: "Quran translation edition"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               Rectangle {
                 width: parent.width
                 height: Style.space(32)
@@ -215,7 +219,7 @@ Panel {
                 }
               }
               Repeater { model: root.translations; delegate: SettingButton { required property var modelData; visible: root.translationSearch === "" || modelData.code.indexOf(root.translationSearch.toLowerCase()) >= 0 || modelData.name.toLowerCase().indexOf(root.translationSearch.toLowerCase()) >= 0; label: modelData.name + " (" + modelData.code + ")"; onClicked: { root.translationSearch = ""; root.persist({ translation: modelData.code }) } } }
-              Text { text: "Default: Saheeh International. The cached edition list refreshes weekly; direct valid Al Quran Cloud edition codes also work."; width: parent.width; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  text: "Default: Saheeh International. The cached edition list refreshes weekly; direct valid Al Quran Cloud edition codes also work."; width: parent.width; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
             }
           }
         }
@@ -229,7 +233,7 @@ Panel {
     implicitWidth: Math.max(Style.space(120), labelText.implicitWidth + Style.space(16))
     implicitHeight: Style.space(30)
     color: "transparent"; border.color: root.dim; radius: 4
-    Text { id: labelText; anchors.centerIn: parent; text: parent.label; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
+    Text { textFormat: Text.PlainText;  id: labelText; anchors.centerIn: parent; text: parent.label; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall }
     MouseArea { anchors.fill: parent; onClicked: parent.clicked() }
   }
 }
