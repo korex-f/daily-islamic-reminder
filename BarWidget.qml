@@ -8,7 +8,7 @@ import qs.Ui
 // checks persisted daily state and only fetches an uncached selected item.
 BarWidget {
   id: root
-  moduleName: "dki.quran-verse-of-the-day"
+  moduleName: "io.github.korex-f.daily-islamic-reminder"
 
   Service {
     id: verse
@@ -74,7 +74,7 @@ BarWidget {
   }
 
   IpcHandler {
-    target: "dki.quran-verse-of-the-day"
+    target: "io.github.korex-f.daily-islamic-reminder"
 
     function open(): void { root.open() }
     function close(): void { root.close() }

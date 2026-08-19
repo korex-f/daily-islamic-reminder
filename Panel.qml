@@ -7,8 +7,8 @@ import qs.Ui
 // grading metadata can never visually read as part of the Quranic ayah.
 Panel {
   id: root
-  moduleName: "dki.quran-verse-of-the-day"
-  ipcTarget: "dki.quran-verse-of-the-day"
+  moduleName: "io.github.korex-f.daily-islamic-reminder"
+  ipcTarget: "io.github.korex-f.daily-islamic-reminder"
   manageIpc: false
 
   property var anchorItem: null

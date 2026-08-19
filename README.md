@@ -8,7 +8,7 @@ An Omarchy Quattro bar widget and panel that presents a daily Quran ayah, a grad
 - Supports sequential (resumable) or deterministic random rotation per source.
 - Defaults to both sources, Saheeh International (`en.sahih`), and records graded sahih or hasan. The default `any` collection pool uses Sahih al-Bukhari and Sahih Muslim; other collection records are considered only when their source-supplied grade passes the active filter.
 - Keeps Quran Arabic separate from translation, and presents Hadith metadata separately so no commentary can be mistaken for Quran text.
-- Caches immutable text per reference and edition under `~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache/`; the same cached ayah or Hadith is not fetched again. Quran and Hadith edition metadata refresh at most weekly.
+- Caches immutable text per reference and edition under `~/.config/omarchy/plugins/io.github.korex-f.daily-islamic-reminder/cache/`; the same cached ayah or Hadith is not fetched again. Quran and Hadith edition metadata refresh at most weekly.
 
 ## Sources and attribution
 
@@ -26,7 +26,7 @@ omarchy plugin add https://github.com/korex-f/daily-islamic-reminder.git --enabl
 The widget is added to the right bar section. To move it:
 
 ```bash
-omarchy bar plugin move dki.quran-verse-of-the-day --section center
+omarchy bar plugin move io.github.korex-f.daily-islamic-reminder --section center
 ```
 
 ## Settings
@@ -51,8 +51,8 @@ There is no offline catalogue bundled with the plugin. Previously viewed items r
 ## Remove cleanly
 
 ```bash
-omarchy plugin remove dki.quran-verse-of-the-day
-rm -rf ~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache
+omarchy plugin remove io.github.korex-f.daily-islamic-reminder
+rm -rf ~/.config/omarchy/plugins/io.github.korex-f.daily-islamic-reminder/cache
 ```
 
 The second command is optional and removes only this plugin’s cached texts and rotation state.

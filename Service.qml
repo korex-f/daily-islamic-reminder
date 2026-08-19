@@ -10,7 +10,7 @@ Item {
   id: root
   property var settings: ({})
   readonly property string home: Quickshell.env("HOME")
-  readonly property string cacheDir: home + "/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache/"
+  readonly property string cacheDir: home + "/.config/omarchy/plugins/io.github.korex-f.daily-islamic-reminder/cache/"
   readonly property string statePath: cacheDir + "state.json"
   readonly property string itemsPath: cacheDir + "items.json"
   readonly property string editionsPath: cacheDir + "editions.json"
