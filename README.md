@@ -20,7 +20,7 @@ Neither source needs an API key; this repository contains none.
 ## Install
 
 ```bash
-omarchy plugin add https://github.com/korex-f/omarchy-quran-verse-of-the-day.git --enable
+omarchy plugin add https://github.com/korex-f/daily-islamic-reminder.git --enable
 ```
 
 The widget is added to the right bar section. To move it:
