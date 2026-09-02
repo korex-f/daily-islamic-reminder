@@ -444,6 +444,32 @@ function isOlderThanDays(date, days) {
   return !isFinite(then) || Date.now() - then > days * 86400000
 }
 
+// Translation languages hadith-api ships for every collection in the
+// rotation pool, so a chosen language never has to fall back mid-fetch.
+var HADITH_LANGUAGES = [
+  { code: "eng", name: "English" },
+  { code: "ind", name: "Indonesian" },
+  { code: "ben", name: "Bengali" },
+  { code: "tur", name: "Turkish" },
+  { code: "urd", name: "Urdu" }
+]
+
+function hadithLanguageCodes() {
+  return HADITH_LANGUAGES.map(function(item) { return item.code })
+}
+
+function hadithLanguage(value) {
+  return choice(value, hadithLanguageCodes(), "eng")
+}
+
+function hadithLanguageName(code) {
+  var wanted = hadithLanguage(code)
+  for (var i = 0; i < HADITH_LANGUAGES.length; i++) {
+    if (HADITH_LANGUAGES[i].code === wanted) return HADITH_LANGUAGES[i].name
+  }
+  return wanted
+}
+
 function quranUrl(reference, translation) { return apiUrl(reference, translation) }
 function hadithUrl(edition, number) {
   return "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/" + encodeURIComponent(edition) + "/" + encodeURIComponent(number) + ".min.json"
@@ -548,6 +574,9 @@ if (typeof module !== "undefined") {
     isOlderThanDays: isOlderThanDays,
     quranUrl: quranUrl,
     hadithUrl: hadithUrl,
+    hadithLanguage: hadithLanguage,
+    hadithLanguageCodes: hadithLanguageCodes,
+    hadithLanguageName: hadithLanguageName,
     hadithPool: hadithPool,
     isAllowedGrade: isAllowedGrade,
     collectionName: collectionName,
@@ -555,6 +584,7 @@ if (typeof module !== "undefined") {
     parseHadith: parseHadith,
     SURAH_NAMES: SURAH_NAMES,
     AYAHS: AYAHS,
-    HADITHS: HADITHS
+    HADITHS: HADITHS,
+    HADITH_LANGUAGES: HADITH_LANGUAGES
   }
 }

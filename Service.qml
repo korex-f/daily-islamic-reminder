@@ -17,6 +17,8 @@ Item {
   readonly property string mode: Model.choice(setting("rotationMode", "both"), ["both", "quran-only", "hadith-only"], "both")
   readonly property string translation: String(setting("translation", "en.sahih") || "en.sahih").toLowerCase()
   readonly property string collection: Model.choice(setting("hadithCollection", "any"), ["any", "bukhari", "muslim", "abudawud", "tirmidhi"], "any")
+  readonly property string hadithLanguage: Model.hadithLanguage(setting("hadithLanguage", "eng"))
+  readonly property string hadithLanguageName: Model.hadithLanguageName(hadithLanguage)
   readonly property bool includeWeak: setting("includeWeakGrades", false) === true
   readonly property bool audioEnabled: setting("audioEnabled", false) === true
 
@@ -48,7 +50,7 @@ Item {
   property int pending: 0
   property string quranKey: ""
   property string hadithKey: ""
-  property string hadithEnglishRaw: ""
+  property string hadithTranslationRaw: ""
   property int metadataPending: 0
   readonly property var quranEditions: editions && Array.isArray(editions.quran) ? editions.quran : []
   readonly property string statusText: loading ? "Loading…" : (quranReference !== "" || hadithNumber !== "" ? "Today’s Reminder" : (lastError !== "" ? lastError : "Ready"))
@@ -97,7 +99,7 @@ Item {
       var pool = Model.hadithPool(collection, includeWeak)
       if (pool.length === 0) { clearHadith(); lastError = "No Hadith records match this collection and grade filter."; return }
       var candidate = pool[Math.max(0, state.hadith_position) % pool.length]
-      hadithKey = cacheKey("hadith", candidate.collection + "/" + candidate.number, "eng")
+      hadithKey = cacheKey("hadith", candidate.collection + "/" + candidate.number, hadithLanguage)
       var h = item(hadithKey)
       if (h && Model.isAllowedGrade(h.grade, includeWeak)) applyHadith(h)
       else if (h) rejectHadith(h.grade)
@@ -123,7 +125,7 @@ Item {
     hadithProc.candidate = candidate
     // Fetch matching language editions separately; the API is static and
     // record-numbered, so they can be joined without scraping.
-    hadithProc.command = ["curl", "-fsS", "--max-time", "10", Model.hadithUrl("eng-" + candidate.collection, candidate.number)]
+    hadithProc.command = ["curl", "-fsS", "--max-time", "10", Model.hadithUrl(hadithLanguage + "-" + candidate.collection, candidate.number)]
     hadithProc.running = true
   }
   function done() {
@@ -181,7 +183,7 @@ Item {
     stdout: StdioCollector { id: hadithOut; waitForEnd: true }
     onExited: function(code) {
       if (code !== 0) { root.lastError = "Couldn’t fetch the Hadith translation."; root.done(); return }
-      root.hadithEnglishRaw = hadithOut.text
+      root.hadithTranslationRaw = hadithOut.text
       hadithArabicProc.candidate = hadithProc.candidate
       hadithArabicProc.command = ["curl", "-fsS", "--max-time", "10", Model.hadithUrl("ara-" + hadithProc.candidate.collection, hadithProc.candidate.number)]
       hadithArabicProc.running = true
@@ -194,7 +196,7 @@ Item {
     onExited: function(code) {
       if (code !== 0) root.lastError = "Couldn’t fetch the Hadith Arabic text."
       else {
-        var value = Model.parseHadith(root.hadithEnglishRaw, hadithArabicOut.text, hadithArabicProc.candidate)
+        var value = Model.parseHadith(root.hadithTranslationRaw, hadithArabicOut.text, hadithArabicProc.candidate)
         // Never render an ungraded Hadith: lack of usable grade is an error.
         if (value && value.grade !== "") {
           root.items[root.hadithKey] = value

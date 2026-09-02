@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "dki.quran-verse-of-the-day",
   "name": "Daily Islamic Reminder",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "author": "Idris Akorede Ibrahim",
   "description": "A daily Quran ayah and/or graded Hadith with a full-detail panel.",
   "license": "MIT",
@@ -18,6 +18,7 @@
     "defaults": {
       "translation": "en.sahih",
       "hadithCollection": "any",
+      "hadithLanguage": "eng",
       "rotationMode": "both",
       "quranSequence": "sequential",
       "hadithSequence": "sequential",
@@ -36,6 +37,12 @@
         "type": "string",
         "label": "Hadith collection: any, Bukhari, Muslim, Abu Dawud, or Tirmidhi",
         "defaultValue": "any"
+      },
+      {
+        "key": "hadithLanguage",
+        "type": "string",
+        "label": "Hadith translation language: eng, ind, ben, tur, or urd",
+        "defaultValue": "eng"
       },
       {
         "key": "rotationMode",

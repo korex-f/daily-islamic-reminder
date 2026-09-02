@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
+import "Model.js" as Model
 
 // The Quran and Hadith are deliberately separate sections: commentary and
 // grading metadata can never visually read as part of the Quranic ayah.
@@ -20,6 +21,8 @@ Panel {
   readonly property color foreground: bar ? bar.foreground : Color.foreground
   readonly property color dim: Qt.darker(foreground, 1.55)
   readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
+  readonly property var hadithLanguages: Model.hadithLanguageCodes()
+  readonly property string hadithLanguageName: Model.hadithLanguageName(root.setting("hadithLanguage", "eng"))
   readonly property var defaultTranslations: [
     { code: "en.sahih", name: "Saheeh International" }, { code: "en.pickthall", name: "Pickthall" },
     { code: "en.yusufali", name: "Yusuf Ali" }, { code: "en.asad", name: "Muhammad Asad" },
@@ -158,7 +161,7 @@ Panel {
               }
               PanelSeparator { visible: root.service && root.service.showQuran && root.service.showHadith; foreground: root.foreground }
               Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; text: "HADITH"; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; font.bold: true }
-              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service ? root.service.hadithCollectionName + " · " + root.service.hadithBook + " · Hadith " + root.service.hadithNumber + "\nGrade: " + root.service.hadithGrade + " · Hadith API" : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
+              Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service ? root.service.hadithCollectionName + " · " + root.service.hadithBook + " · Hadith " + root.service.hadithNumber + "\nGrade: " + root.service.hadithGrade + " · " + root.service.hadithLanguageName + " · Hadith API" : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
               Text { visible: root.service && root.service.showHadith && root.service.hadithArabic !== ""; width: parent.width; text: root.service ? root.service.hadithArabic : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.subtitle; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignRight; textFormat: Text.PlainText }
               Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service && root.service.hadithText !== "" ? root.service.hadithText : "Loading graded Hadith…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
               Text { textFormat: Text.PlainText;  visible: root.service && root.service.lastError !== ""; width: parent.width; text: root.service ? root.service.lastError : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
@@ -183,7 +186,7 @@ Panel {
               width: parent.width
               spacing: Style.space(8)
               Text { textFormat: Text.PlainText;  visible: !root.hasSavedSettings(); text: "Welcome — choose your preferred translation, Hadith collection, and rotation mode. Suggested settings are ready to use."; width: parent.width; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
-              SettingButton { visible: !root.hasSavedSettings(); label: "Use suggested settings"; onClicked: root.persist({ translation: "en.sahih", hadithCollection: "any", rotationMode: "both", quranSequence: "sequential", hadithSequence: "sequential", includeWeakGrades: false }) }
+              SettingButton { visible: !root.hasSavedSettings(); label: "Use suggested settings"; onClicked: root.persist({ translation: "en.sahih", hadithCollection: "any", hadithLanguage: "eng", rotationMode: "both", quranSequence: "sequential", hadithSequence: "sequential", includeWeakGrades: false }) }
               Text { textFormat: Text.PlainText;  text: "Rotation mode: " + root.setting("rotationMode", "both"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               SettingButton { label: "Cycle rotation mode"; onClicked: root.cycle("rotationMode", ["both", "quran-only", "hadith-only"]) }
               Text { textFormat: Text.PlainText;  text: "Quran order: " + root.setting("quranSequence", "sequential") + " · Hadith order: " + root.setting("hadithSequence", "sequential"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
@@ -194,6 +197,8 @@ Panel {
               }
               Text { textFormat: Text.PlainText;  text: "Hadith collection: " + root.setting("hadithCollection", "any"); color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
               SettingButton { label: "Cycle collection"; onClicked: root.cycle("hadithCollection", ["any", "bukhari", "muslim", "abudawud", "tirmidhi"]) }
+              Text { textFormat: Text.PlainText;  text: "Hadith translation language: " + root.hadithLanguageName; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }
+              SettingButton { label: "Cycle Hadith language"; onClicked: root.cycle("hadithLanguage", root.hadithLanguages) }
               SettingButton { label: root.setting("includeWeakGrades", false) ? "Exclude weaker grades" : "Include grades beyond sahih/hasan"; onClicked: root.persist({ includeWeakGrades: !root.setting("includeWeakGrades", false) }) }
               SettingButton { label: root.setting("audioEnabled", false) ? "Hide Quran audio link" : "Show Quran audio link"; onClicked: root.persist({ audioEnabled: !root.setting("audioEnabled", false) }) }
               Text { textFormat: Text.PlainText;  text: "Quran translation edition"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body }

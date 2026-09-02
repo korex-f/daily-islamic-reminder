@@ -50,6 +50,18 @@ assert.equal(model.isAllowedGrade("Da'if", false), false)
 assert.ok(model.isAllowedGrade("Da'if", true))
 assert.equal(model.collectionName("abudawud"), "Sunan Abi Dawud")
 assert.equal(model.hadithUrl("eng-bukhari", 1), "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-bukhari/1.min.json")
+assert.equal(model.hadithUrl("ind-bukhari", 1), "https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ind-bukhari/1.min.json")
+
+// Only languages published for every collection in the pool are selectable,
+// so switching language can never leave a collection without a translation.
+assert.equal(model.hadithLanguage("ind"), "ind")
+assert.equal(model.hadithLanguage("IND"), "ind")
+assert.equal(model.hadithLanguage("klingon"), "eng")
+assert.equal(model.hadithLanguage(undefined), "eng")
+assert.equal(model.hadithLanguageName("ind"), "Indonesian")
+assert.equal(model.hadithLanguageName("nope"), "English")
+assert.ok(model.hadithLanguageCodes().indexOf("eng") >= 0)
+assert.equal(model.hadithLanguageCodes().length, model.HADITH_LANGUAGES.length)
 
 const parsedQuran = model.parseQuran(JSON.stringify({ data: [
   { text: "عَرَبِي", audio: "https://audio.example/1.mp3" },
