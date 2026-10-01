@@ -54,7 +54,7 @@ Item {
   property string hadithEnglishRaw: ""
   property int metadataPending: 0
   readonly property var quranEditions: editions && Array.isArray(editions.quran) ? editions.quran : []
-  readonly property string statusText: loading ? "Loading…" : (quranReference !== "" || hadithNumber !== "" ? "Today’s Reminder" : (lastError !== "" ? lastError : "Ready"))
+  readonly property string statusText: loading ? "Loading…" : (lastError !== "" ? lastError : (quranReference !== "" || hadithNumber !== "" ? "Today’s Reminder" : "Ready"))
 
   function setting(name, fallback) {
     var v = settings ? settings[name] : undefined

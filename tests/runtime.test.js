@@ -41,6 +41,7 @@ assert.match(service, /property FileView stateFile: FileView[\s\S]*?onLoaded:/)
 assert.match(service, /property FileView itemsFile: FileView[\s\S]*?onLoaded:/)
 assert.match(service, /property FileView editionsFile: FileView[\s\S]*?onLoaded:/)
 assert.match(service, /onLoadFailed:/, "missing or malformed files must have fallback handlers")
+assert.match(service, /statusText: loading \? "Loading…" : \(lastError !== ""/, "IPC status should report fetch failures even when one source loaded")
 assert.match(fs.readFileSync(path.join(root, ".gitignore"), "utf8"), /^\/cache\//m)
 
 console.log("Runtime path, migration, manifest, and interaction regression tests passed")
