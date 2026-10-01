@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls
 import Quickshell
 import qs.Commons
 import qs.Ui
@@ -87,21 +88,43 @@ Panel {
     centerOnBar: false
     focusTarget: keyCatcher
     contentWidth: panel.fittedContentWidth(Style.space(390))
-    contentHeight: panel.fittedContentHeight(column.implicitHeight, Style.space(520))
+    // Keep the metadata action in the viewport while the reminder itself can
+    // grow beyond the card. The card remains screen-friendly; its contents
+    // scroll when a translation or Hadith is longer than the available space.
+    contentHeight: panel.fittedContentHeight(
+      column.implicitHeight + (root.showingSettings ? 0 : Style.space(40)),
+      Style.space(520)
+    )
 
     PanelKeyCatcher {
       id: keyCatcher
       anchors.fill: parent
+      blocked: root.showingSettings && translationInput.activeFocus
       onCloseRequested: root.close()
       onTabRequested: function(direction) { root.switchPanel(direction) }
       onTextKey: function(t) { if (t === "r" || t === "R") root.refresh() }
+      onMoveRequested: function(dx, dy) {
+        if (dy !== 0 && flickable.contentHeight > flickable.height) {
+          flickable.contentY = Math.max(0, Math.min(
+            flickable.contentY + dy * Style.space(48),
+            flickable.contentHeight - flickable.height
+          ))
+        } else if (dx !== 0) {
+          root.switchPanel(dx)
+        }
+      }
 
       Flickable {
+        id: flickable
         anchors.fill: parent
+        anchors.bottomMargin: root.showingSettings ? 0 : metadataRefresh.height + Style.space(8)
         contentWidth: width
         contentHeight: column.implicitHeight
         clip: true
         boundsBehavior: Flickable.StopAtBounds
+        flickableDirection: Flickable.VerticalFlick
+        interactive: contentHeight > height
+        ScrollBar.vertical: ScrollBar { policy: ScrollBar.AsNeeded }
 
         Column {
           id: column
@@ -163,15 +186,6 @@ Panel {
               Text { visible: root.service && root.service.showHadith && root.service.hadithArabic !== ""; width: parent.width; text: root.service ? root.service.hadithArabic : ""; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.subtitle; wrapMode: Text.WordWrap; horizontalAlignment: Text.AlignRight; textFormat: Text.PlainText }
               Text { textFormat: Text.PlainText;  visible: root.service && root.service.showHadith; width: parent.width; text: root.service && root.service.hadithText !== "" ? root.service.hadithText : "Loading graded Hadith…"; color: root.foreground; font.family: root.fontFamily; font.pixelSize: Style.font.body; wrapMode: Text.WordWrap }
               Text { textFormat: Text.PlainText;  visible: root.service && root.service.lastError !== ""; width: parent.width; text: root.service ? root.service.lastError : ""; color: root.dim; font.family: root.fontFamily; font.pixelSize: Style.font.bodySmall; wrapMode: Text.WordWrap }
-              Rectangle {
-                width: parent.width
-                height: Style.space(30)
-                radius: 4
-                color: "transparent"
-                border.color: root.dim
-                Text { textFormat: Text.PlainText;  anchors.centerIn: parent; text: "Refresh metadata"; color: root.foreground; font.pixelSize: Style.font.bodySmall }
-                MouseArea { anchors.fill: parent; onClicked: root.refresh() }
-              }
             }
           }
 
@@ -225,6 +239,25 @@ Panel {
             }
           }
         }
+      }
+
+      Rectangle {
+        id: metadataRefresh
+        visible: !root.showingSettings
+        anchors { left: parent.left; right: parent.right; bottom: parent.bottom }
+        height: Style.space(30)
+        radius: 4
+        color: "transparent"
+        border.color: root.dim
+        Text {
+          textFormat: Text.PlainText
+          anchors.centerIn: parent
+          text: "Refresh metadata"
+          color: root.foreground
+          font.family: root.fontFamily
+          font.pixelSize: Style.font.bodySmall
+        }
+        MouseArea { anchors.fill: parent; onClicked: root.refresh() }
       }
     }
   }
