@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
+import "Model.js" as Model
 
 // The Quran and Hadith are deliberately separate sections: commentary and
 // grading metadata can never visually read as part of the Quranic ayah.
@@ -56,7 +57,7 @@ Panel {
   function refresh() { if (service) service.load(true) }
   function openQuranAudio() {
     var target = String(service ? service.quranAudio : "").trim()
-    if (target.indexOf("https://") === 0 && target.indexOf(" ") === -1) Qt.openUrlExternally(target)
+    if (Model.validAudioUrl(target)) Qt.openUrlExternally(target)
   }
   function setting(name, fallback) {
     var value = settings ? settings[name] : undefined
@@ -213,7 +214,8 @@ Panel {
                   text: root.translationSearch
                   onTextChanged: root.translationSearch = text
                   Keys.onReturnPressed: function(event) {
-                    if (text.trim() !== "") root.persist({ translation: text.trim().toLowerCase() })
+                    var edition = Model.translationFromReturn(text)
+                    if (edition !== "") root.persist({ translation: edition })
                     event.accepted = true
                   }
                 }

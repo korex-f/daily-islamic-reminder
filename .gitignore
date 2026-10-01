@@ -1,0 +1,2 @@
+# Runtime data from older/local plugin builds must never enter the source tree.
+/cache/

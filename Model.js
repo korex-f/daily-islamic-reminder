@@ -505,6 +505,15 @@ function collectionName(collection) {
   return names[collection] || String(collection || "")
 }
 
+function validAudioUrl(value) {
+  var url = String(value || "").trim()
+  return /^https:\/\/[^\s/@]+(?:\/[^\s]*)?$/.test(url)
+}
+
+function translationFromReturn(value) {
+  return String(value || "").trim().toLowerCase()
+}
+
 function parseQuran(raw, reference, translation) {
   try {
     var value = JSON.parse(String(raw || ""))
@@ -514,7 +523,7 @@ function parseQuran(raw, reference, translation) {
       reference: referenceLabel(reference), arabic: cleanVerseText(rows[0].text),
       text: cleanVerseText(rows[1].text),
       edition: String((rows[1].edition && rows[1].edition.englishName) || translation),
-      audio: String(rows[0].audio || "")
+      audio: validAudioUrl(rows[0].audio) ? String(rows[0].audio).trim() : ""
     }
   } catch (e) { return null }
 }
@@ -551,6 +560,8 @@ if (typeof module !== "undefined") {
     hadithPool: hadithPool,
     isAllowedGrade: isAllowedGrade,
     collectionName: collectionName,
+    validAudioUrl: validAudioUrl,
+    translationFromReturn: translationFromReturn,
     parseQuran: parseQuran,
     parseHadith: parseHadith,
     SURAH_NAMES: SURAH_NAMES,

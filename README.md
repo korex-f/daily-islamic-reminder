@@ -10,7 +10,7 @@ An Omarchy Quattro bar widget and panel that presents a daily Quran ayah, a grad
 - Supports sequential (resumable) or deterministic random rotation per source.
 - Defaults to both sources, Saheeh International (`en.sahih`), and records graded sahih or hasan. The default `any` collection pool uses Sahih al-Bukhari and Sahih Muslim; other collection records are considered only when their source-supplied grade passes the active filter.
 - Keeps Quran Arabic separate from translation, and presents Hadith metadata separately so no commentary can be mistaken for Quran text.
-- Caches immutable text per reference and edition under `~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache/`; the same cached ayah or Hadith is not fetched again. Quran and Hadith edition metadata refresh at most weekly.
+- Caches immutable text and edition metadata under `$XDG_CACHE_HOME/dki.quran-verse-of-the-day/` (default `~/.cache/...`) and rotation state under `$XDG_STATE_HOME/dki.quran-verse-of-the-day/` (default `~/.local/state/...`). Existing data under the former Omarchy plugin cache is copied once when the new locations are initialized.
 
 ## Sources and attribution
 
@@ -54,10 +54,10 @@ There is no offline catalogue bundled with the plugin. Previously viewed items r
 
 ```bash
 omarchy plugin remove dki.quran-verse-of-the-day
-rm -rf ~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache
+rm -rf "${XDG_CACHE_HOME:-$HOME/.cache}/dki.quran-verse-of-the-day" "${XDG_STATE_HOME:-$HOME/.local/state}/dki.quran-verse-of-the-day"
 ```
 
-The second command is optional and removes only this plugin’s cached texts and rotation state.
+The second command is optional and removes only this plugin’s cached texts and rotation state. Legacy data is read from `~/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache` during the one-time migration.
 
 ## Development checks
 
@@ -65,6 +65,7 @@ The second command is optional and removes only this plugin’s cached texts and
 omarchy plugin validate .
 qmllint BarWidget.qml Panel.qml Service.qml
 node tests/model.test.js
+node tests/runtime.test.js
 ```
 
 ## License

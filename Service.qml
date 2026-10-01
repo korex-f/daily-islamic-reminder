@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 import "Model.js" as Model
+import "Paths.js" as Paths
 
 // Lazy, persistent reminder state. Nothing is fetched until load() is called
 // by the panel. Text is immutable, so each selected reference is cached by
@@ -10,10 +11,12 @@ Item {
   id: root
   property var settings: ({})
   readonly property string home: Quickshell.env("HOME")
-  readonly property string cacheDir: home + "/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache/"
-  readonly property string statePath: cacheDir + "state.json"
-  readonly property string itemsPath: cacheDir + "items.json"
-  readonly property string editionsPath: cacheDir + "editions.json"
+  readonly property var paths: Paths.pluginPaths(Quickshell.env("XDG_CACHE_HOME"), Quickshell.env("XDG_STATE_HOME"), home)
+  readonly property string cacheDir: paths.cacheDir
+  readonly property string statePath: paths.statePath
+  readonly property string itemsPath: paths.itemsPath
+  readonly property string editionsPath: paths.editionsPath
+  readonly property string legacyCacheDir: home + "/.config/omarchy/plugins/dki.quran-verse-of-the-day/cache"
   readonly property string mode: Model.choice(setting("rotationMode", "both"), ["both", "quran-only", "hadith-only"], "both")
   readonly property string translation: String(setting("translation", "en.sahih") || "en.sahih").toLowerCase()
   readonly property string collection: Model.choice(setting("hadithCollection", "any"), ["any", "bukhari", "muslim", "abudawud", "tirmidhi"], "any")
@@ -154,7 +157,7 @@ Item {
 
   Process {
     id: ensureDir
-    command: ["mkdir", "-p", root.cacheDir]
+    command: Paths.migrationCommand(root.paths, root.legacyCacheDir)
     onExited: function(code) {
       if (code !== 0) { root.lastError = "Couldn’t create the reminder cache directory."; return }
       root.readingCache = true
