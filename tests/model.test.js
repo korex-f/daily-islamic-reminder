@@ -44,6 +44,8 @@ assert.equal(model.nextPosition(-1, 9, "random", "2026-01-01q"), model.nextPosit
 assert.ok(model.hadithPool("any", false).every((item) => item.collection === "bukhari" || item.collection === "muslim"))
 assert.ok(model.hadithPool("any", true).some((item) => item.collection === "abudawud"))
 assert.equal(model.hadithPool("abudawud", false).length, 1)
+assert.ok(model.hadithPool("muslim", false).some((item) => item.number === 3))
+assert.equal(model.hadithPool("muslim", false).some((item) => item.number === 1), false)
 assert.ok(model.isAllowedGrade("Sahih", false))
 assert.ok(model.isAllowedGrade("Hasan Sahih", false))
 assert.equal(model.isAllowedGrade("Da'if", false), false)
@@ -61,5 +63,11 @@ assert.equal(parsedQuran.edition, "Saheeh International")
 const parsedHadith = model.parseHadith(JSON.stringify({ hadiths: [{ hadithnumber: 1, text: " English text ", grades: [], reference: { book: 1 } }] }), JSON.stringify({ hadiths: [{ text: "نص عربي" }] }), { collection: "bukhari", number: 1 })
 assert.equal(parsedHadith.grade, "Sahih")
 assert.equal(parsedHadith.book, "Book 1")
+assert.equal(model.isUsableHadith(parsedHadith), true)
+assert.equal(model.parseHadith(
+  JSON.stringify({ hadiths: [{ hadithnumber: 1, text: "", grades: [], reference: { book: 0 } }] }),
+  JSON.stringify({ hadiths: [{ hadithnumber: 1, text: "", grades: [], reference: { book: 0 } }] }),
+  { collection: "muslim", number: 1 }
+), null, "blank source records must not be cached as loaded Hadith")
 
 console.log("Quran and Hadith model tests passed")

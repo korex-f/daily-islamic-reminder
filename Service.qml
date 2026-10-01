@@ -102,9 +102,12 @@ Item {
       var candidate = pool[Math.max(0, state.hadith_position) % pool.length]
       hadithKey = cacheKey("hadith", candidate.collection + "/" + candidate.number, "eng")
       var h = item(hadithKey)
-      if (h && Model.isAllowedGrade(h.grade, includeWeak)) applyHadith(h)
-      else if (h) rejectHadith(h.grade)
-      else fetchHadith(candidate)
+      if (h && Model.isUsableHadith(h) && Model.isAllowedGrade(h.grade, includeWeak)) applyHadith(h)
+      else if (h && Model.isUsableHadith(h)) rejectHadith(h.grade)
+      else {
+        if (h) { delete items[hadithKey]; save() }
+        fetchHadith(candidate)
+      }
     } else clearHadith()
   }
 
@@ -198,14 +201,14 @@ Item {
       if (code !== 0) root.lastError = "Couldn’t fetch the Hadith Arabic text."
       else {
         var value = Model.parseHadith(root.hadithEnglishRaw, hadithArabicOut.text, hadithArabicProc.candidate)
-        // Never render an ungraded Hadith: lack of usable grade is an error.
-        if (value && value.grade !== "") {
+        // Never render a blank or ungraded Hadith response.
+        if (value && Model.isUsableHadith(value)) {
           root.items[root.hadithKey] = value
           root.save()
           if (Model.isAllowedGrade(value.grade, root.includeWeak)) root.applyHadith(value)
           else root.rejectHadith(value.grade)
         }
-        else root.lastError = "The Hadith source did not provide a visible grade."
+        else root.lastError = "The Hadith source did not provide usable text and a visible grade."
       }
       root.done()
     }

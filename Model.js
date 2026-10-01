@@ -455,9 +455,11 @@ var HADITHS = [
   { collection: "bukhari", number: 1 }, { collection: "bukhari", number: 8 },
   { collection: "bukhari", number: 13 }, { collection: "bukhari", number: 20 },
   { collection: "bukhari", number: 52 }, { collection: "bukhari", number: 56 },
-  { collection: "muslim", number: 1 }, { collection: "muslim", number: 8 },
-  { collection: "muslim", number: 16 }, { collection: "muslim", number: 38 },
-  { collection: "muslim", number: 47 }, { collection: "muslim", number: 55 },
+  // Some low-number records exist in the API index but have empty text.
+  // These reviewed references have populated English and Arabic editions.
+  { collection: "muslim", number: 3 }, { collection: "muslim", number: 4 },
+  { collection: "muslim", number: 15 }, { collection: "muslim", number: 94 },
+  { collection: "muslim", number: 95 }, { collection: "muslim", number: 96 },
   { collection: "abudawud", number: 1 }, { collection: "tirmidhi", number: 1 }
 ]
 
@@ -505,6 +507,11 @@ function collectionName(collection) {
   return names[collection] || String(collection || "")
 }
 
+function isUsableHadith(value) {
+  return !!value && String(value.text || "").trim() !== "" &&
+    String(value.arabic || "").trim() !== "" && String(value.grade || "").trim() !== ""
+}
+
 function validAudioUrl(value) {
   var url = String(value || "").trim()
   return /^https:\/\/[^\s/@]+(?:\/[^\s]*)?$/.test(url)
@@ -535,12 +542,13 @@ function parseHadith(englishRaw, arabicRaw, candidate) {
     if (!english || !arabic) return null
     var ref = english.reference || arabic.reference || {}
     var grade = gradeFrom(english, candidate.collection)
-    return {
+    var value = {
       text: cleanVerseText(english.text), arabic: cleanVerseText(arabic.text),
       collection: collectionName(candidate.collection),
       book: "Book " + String(ref.book === undefined ? "—" : ref.book),
       number: String(english.hadithnumber || candidate.number), grade: grade
     }
+    return isUsableHadith(value) ? value : null
   } catch (e) { return null }
 }
 
@@ -559,6 +567,7 @@ if (typeof module !== "undefined") {
     hadithUrl: hadithUrl,
     hadithPool: hadithPool,
     isAllowedGrade: isAllowedGrade,
+    isUsableHadith: isUsableHadith,
     collectionName: collectionName,
     validAudioUrl: validAudioUrl,
     translationFromReturn: translationFromReturn,
